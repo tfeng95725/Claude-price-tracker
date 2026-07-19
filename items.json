@@ -6,4 +6,11 @@
     "track_price": true,
     "track_sizes": []
   }
+  {
+  "id": "everlane-gauze-cami-beech",
+  "name": "Everlane Gauze Smocked Cami - Beech",
+  "url": "https://www.everlane.com/products/womens-gauze-smocked-cami-beech",
+  "track_price": false,
+  "track_sizes": ["XXS", "XS"]
+}
 ]
