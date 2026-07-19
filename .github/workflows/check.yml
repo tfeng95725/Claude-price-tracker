@@ -1,0 +1,44 @@
+name: Check prices and sizes
+
+on:
+  schedule:
+    # 3x/day: 00:00, 08:00, 16:00 UTC. GitHub may delay scheduled runs a
+    # bit under load, so treat these as approximate.
+    - cron: "0 */8 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Run checker
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python checker.py
+
+      - name: Publish latest data to docs/data.json (for the dashboard)
+        run: cp data.json docs/data.json
+
+      - name: Commit updated data
+        run: |
+          git config user.name "price-bot"
+          git config user.email "price-bot@users.noreply.github.com"
+          git add data.json docs/data.json failures.json
+          git diff --staged --quiet || git commit -m "Update tracked item data [skip ci]"
+          git push

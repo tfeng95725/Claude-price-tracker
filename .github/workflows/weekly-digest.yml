@@ -1,0 +1,38 @@
+name: Weekly failure digest
+
+on:
+  schedule:
+    # 04:00 UTC Sunday = Saturday 8:00 PM Pacific Standard Time (winter).
+    # During Pacific Daylight Time (summer) this lands ~9:00 PM instead,
+    # since cron can't shift for daylight saving. Close enough for a
+    # weekly digest; adjust the hour below if you want it exact.
+    - cron: "0 4 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Send weekly digest (if any failures logged)
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python weekly_digest.py
+
+      - name: Commit cleared failures log
+        run: |
+          git config user.name "price-bot"
+          git config user.email "price-bot@users.noreply.github.com"
+          git add failures.json
+          git diff --staged --quiet || git commit -m "Clear weekly failures log [skip ci]"
+          git push

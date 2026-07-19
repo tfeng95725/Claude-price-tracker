@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Price & Size Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --border: #2a2e38;
+    --text: #e8e9ec;
+    --muted: #9aa1ac;
+    --accent: #4f7cff;
+    --good: #3ecf8e;
+    --bad: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px 16px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .grid { display: grid; gap: 12px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .name { font-weight: 600; margin-bottom: 4px; }
+  .name a { color: var(--text); text-decoration: none; }
+  .name a:hover { color: var(--accent); }
+  .meta { color: var(--muted); font-size: 13px; }
+  .price { font-size: 20px; font-weight: 700; }
+  .sizes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .size-pill {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+  .size-pill.avail { color: var(--good); border-color: var(--good); }
+  .size-pill.oos { color: var(--muted); text-decoration: line-through; }
+  .badge { font-size: 12px; padding: 3px 8px; border-radius: 6px; }
+  .badge.ok { background: rgba(62,207,142,0.15); color: var(--good); }
+  .badge.err { background: rgba(255,107,107,0.15); color: var(--bad); }
+  .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Tracked items</h1>
+    <div class="sub" id="updated">Loading…</div>
+    <div class="grid" id="items"></div>
+  </div>
+
+<script>
+async function load() {
+  const container = document.getElementById("items");
+  const updated = document.getElementById("updated");
+  try {
+    const res = await fetch("data.json", { cache: "no-store" });
+    const data = await res.json();
+    const entries = Object.values(data);
+
+    if (!entries.length) {
+      container.innerHTML = '<div class="empty">No items yet — add some to items.json.</div>';
+      updated.textContent = "";
+      return;
+    }
+
+    let latest = entries.reduce((a, b) =>
+      (a.last_checked > b.last_checked ? a : b)
+    ).last_checked;
+    updated.textContent = "Last checked: " + new Date(latest).toLocaleString();
+
+    container.innerHTML = entries.map(item => {
+      const sizesHtml = Object.entries(item.sizes || {}).map(([sz, avail]) =>
+        `<span class="size-pill ${avail ? 'avail' : 'oos'}">${sz}</span>`
+      ).join("");
+
+      const ok = item.status === "ok";
+
+      return `
+        <div class="card">
+          <div>
+            <div class="name"><a href="${item.url}" target="_blank">${item.name}</a></div>
+            <div class="meta">Checked ${new Date(item.last_checked).toLocaleString()}</div>
+            ${sizesHtml ? `<div class="sizes">${sizesHtml}</div>` : ""}
+          </div>
+          <div style="text-align:right">
+            <div class="price">${item.price != null ? "$" + item.price.toFixed(2) : "—"}</div>
+            <span class="badge ${ok ? 'ok' : 'err'}">${ok ? "OK" : "check failed"}</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch (e) {
+    container.innerHTML = '<div class="empty">Couldn\'t load data.json yet. Run the workflow once first.</div>';
+    updated.textContent = "";
+  }
+}
+load();
+</script>
+</body>
+</html>
