@@ -2,17 +2,17 @@
   "gap-dress-898568012": {
     "name": "Gap Dress (pid 898568012)",
     "url": "https://www.gap.com/browse/product.do?pid=898568012&vid=1",
-    "price": 59.0,
+    "price": null,
     "sizes": {},
-    "last_checked": "2026-09-14T14:49:46.837076+00:00",
-    "status": "ok"
+    "last_checked": "2026-09-14T20:11:50.085222+00:00",
+    "status": "could_not_read_price"
   },
   "everlane-gauze-cami-beech": {
     "name": "Everlane Gauze Smocked Cami - Beech",
     "url": "https://www.everlane.com/products/womens-gauze-smocked-cami-beech",
-    "price": 59.0,
+    "price": 1300.0,
     "sizes": {},
-    "last_checked": "2026-09-14T14:49:46.837076+00:00",
+    "last_checked": "2026-09-14T20:11:50.085222+00:00",
     "status": "ok"
   }
 }

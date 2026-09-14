@@ -226,5 +226,11 @@
     "name": "Gap Dress (pid 898568012)",
     "url": "https://www.gap.com/browse/product.do?pid=898568012&vid=1",
     "reason": "page loaded but no price could be found (layout may have changed)"
+  },
+  {
+    "when": "2026-09-14T20:11:50.085222+00:00",
+    "name": "Gap Dress (pid 898568012)",
+    "url": "https://www.gap.com/browse/product.do?pid=898568012&vid=1",
+    "reason": "page loaded but no price could be found (layout may have changed)"
   }
 ]
